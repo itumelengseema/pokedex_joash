@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // 👈 for kIsWeb
+import 'package:flutter/foundation.dart'; 
 import 'package:pokedex_joash/services/auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pokedex_joash/views/wrapper.dart';
