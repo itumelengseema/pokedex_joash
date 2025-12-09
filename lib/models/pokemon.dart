@@ -284,7 +284,7 @@ class EvolutionStage extends Equatable {
   String get evolutionInfo {
     if (minLevel != null) {
       return 'Level $minLevel';
-    } else if (trigger != null) {
+    } else if (trigger != null && trigger!.isNotEmpty) {
       return trigger![0].toUpperCase() + trigger!.substring(1);
     }
     return 'Unknown';
