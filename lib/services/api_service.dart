@@ -22,92 +22,44 @@ class PaginatedPokemonResponse {
 /// Fixes Issue #8: Proper API call handling with error management
 /// Fixes Issue #14: Query parameter issues resolved with proper URI building
 class ApiService {
-  final http.Client _client;
+  static const String baseUrl = 'https://pokeapi.co/api/v2';
 
-  ApiService(this._client);
-
-  /// Fetch paginated Pokemon list with proper validation
-  /// FIX #8: Comprehensive error handling for API calls
-  /// FIX #14: Correct query parameter handling using Uri.replace
   Future<PaginatedPokemonResponse> fetchPokemonList({
     int limit = 20,
     int offset = 0,
   }) async {
-    try {
-      // Validate parameters (Issue #14 fix)
-      if (offset < 0 || limit <= 0 || limit > AppConstants.maxPageSize) {
-        throw ValidationException(
-          'Offset must be >= 0 and limit must be between 1 and ${AppConstants.maxPageSize}',
-        );
-      }
+    final url = Uri.parse('$baseUrl/pokemon?limit=$limit&offset=$offset');
 
-      // Build URI with proper query parameters (Issue #14 fix)
-      final url = Uri.parse('${AppConstants.apiBaseUrl}/pokemon').replace(
-        queryParameters: {
-          'offset': offset.toString(),
-          'limit': limit.toString(),
-        },
-      );
+    final response = await http.get(url);
 
-      final response = await _client
-          .get(url)
-          .timeout(
-            AppConstants.apiTimeout,
-            onTimeout: () => throw NetworkException(
-              'Request timed out after ${AppConstants.apiTimeout.inSeconds}s',
-              code: 'TIMEOUT',
-            ),
-          );
-
-      if (response.statusCode != 200) {
-        throw NetworkException(
-          'Failed to load pokemon list: HTTP ${response.statusCode}',
-          code: response.statusCode.toString(),
-        );
-      }
-
+    if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
-      final int totalCount = data['count'];
       final List<dynamic> results = data['results'];
+      final int totalCount = data['count'];
 
-      final pokemonListItems = <PokemonListItem>[];
-
-      for (var item in results) {
-        final pokemonUrl = item['url'] as String;
-        try {
-          final detailResponse = await _client.get(Uri.parse(pokemonUrl));
-          if (detailResponse.statusCode == 200) {
-            final detailData = json.decode(detailResponse.body);
-            final types = (detailData['types'] as List)
-                .map((typeData) => typeData['type']['name'] as String)
-                .toList();
-
-            pokemonListItems.add(
-              PokemonListItem(
-                name: item['name'],
-                url: item['url'],
-                types: types,
-              ),
-            );
-          }
-        } catch (e) {
-          pokemonListItems.add(PokemonListItem.fromJson(item));
-        }
-      }
+      final pokemonListItems = results
+          .map(
+            (item) => PokemonListItem(
+              name: item['name'],
+              url: item['url'],
+              types: [],
+            ),
+          )
+          .toList();
 
       final String? nextUrl = data['next'];
+      final bool hasMore = nextUrl != null;
 
       return PaginatedPokemonResponse(
         results: pokemonListItems,
         totalCount: totalCount,
-        hasMore: nextUrl != null,
+        hasMore: hasMore,
       );
-    } catch (e) {
-      throw NetworkException('Failed to load pokemon list: $e');
+    } else {
+      throw Exception('Failed to load pokemon list');
     }
   }
 
-  /// Search Pokemon by name or ID
   Future<List<PokemonListItem>> searchPokemon(
     String query, {
     int limit = 20,
@@ -119,8 +71,8 @@ class ApiService {
     }
 
     try {
-      final url = Uri.parse('${AppConstants.apiBaseUrl}/pokemon/$lowerQuery');
-      final response = await _client.get(url).timeout(AppConstants.apiTimeout);
+      final url = Uri.parse('$baseUrl/pokemon/$lowerQuery');
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -131,14 +83,12 @@ class ApiService {
         return [
           PokemonListItem(
             name: data['name'],
-            url: '${AppConstants.apiBaseUrl}/pokemon/${data['id']}/',
+            url: '$baseUrl/pokemon/${data['id']}/',
             types: types,
           ),
         ];
       }
-    } catch (_) {
-      // If direct search fails, fall through to list search
-    }
+    } catch (_) {}
 
     _allPokemons ??= await _fetchAllPokemons();
 
@@ -153,11 +103,9 @@ class ApiService {
   List<PokemonListItem>? _allPokemons;
 
   Future<List<PokemonListItem>> _fetchAllPokemons() async {
-    final url = Uri.parse(
-      '${AppConstants.apiBaseUrl}/pokemon?limit=2000&offset=0',
-    );
+    final url = Uri.parse('$baseUrl/pokemon?limit=2000&offset=0');
 
-    final response = await _client.get(url).timeout(AppConstants.apiTimeout);
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -173,48 +121,53 @@ class ApiService {
           )
           .toList();
     } else {
-      throw NetworkException(
-        'Failed to load pokemon list: ${response.statusCode}',
-      );
+      throw Exception('Failed to load pokemon list');
     }
   }
 
-  /// Fetch Pokemon details by ID or name
-  Future<Pokemon> fetchPokemonDetails(dynamic idOrName) async {
-    final data = await fetchPokemonDetailsRaw(idOrName);
-    return Pokemon.fromJson(data);
+  Future<PokemonListItem> fetchPokemonDetails(String url, String name) async {
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load pokemon details');
+    }
+
+    final detailData = json.decode(response.body);
+    final types = (detailData['types'] as List)
+        .map((typeData) => typeData['type']['name'] as String)
+        .toList();
+
+    return PokemonListItem(name: name, url: url, types: types);
   }
 
   Future<Map<String, dynamic>> fetchPokemonDetailsRaw(dynamic idOrName) async {
-    final url = Uri.parse('${AppConstants.apiBaseUrl}/pokemon/$idOrName');
+    final url = Uri.parse('$baseUrl/pokemon/$idOrName');
 
-    final response = await _client.get(url).timeout(AppConstants.apiTimeout);
+    final response = await http.get(url);
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
-      throw NetworkException(
-        'Failed to load pokemon details: ${response.statusCode}',
-      );
+      throw Exception('Failed to load pokemon details');
     }
   }
 
-  /// Fetch Pokemon description from species data
   Future<String?> fetchPokemonDescription(int pokemonId) async {
     try {
-      final url = Uri.parse(
-        '${AppConstants.apiBaseUrl}/pokemon-species/$pokemonId',
-      );
-      final response = await _client.get(url).timeout(AppConstants.apiTimeout);
+      final url = Uri.parse('$baseUrl/pokemon-species/$pokemonId');
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+
         final flavorTextEntries = data['flavor_text_entries'] as List;
 
         for (var entry in flavorTextEntries) {
           if (entry['language']['name'] == 'en') {
             String text = entry['flavor_text'];
+
             text = text.replaceAll('\n', ' ').replaceAll('\f', ' ');
+
             return text;
           }
         }
@@ -225,36 +178,31 @@ class ApiService {
     }
   }
 
-  /// Fetch evolution chain for a Pokemon
-  /// FIX #10: Proper error handling for evolution chain
   Future<List<EvolutionStage>> fetchEvolutionChain(int pokemonId) async {
     try {
-      final speciesUrl = Uri.parse(
-        '${AppConstants.apiBaseUrl}/pokemon-species/$pokemonId',
-      );
-      final speciesResponse = await _client
-          .get(speciesUrl)
-          .timeout(AppConstants.apiTimeout);
+      final speciesUrl = Uri.parse('$baseUrl/pokemon-species/$pokemonId');
+      final speciesResponse = await http.get(speciesUrl);
 
       if (speciesResponse.statusCode != 200) {
         return [];
       }
 
       final speciesData = json.decode(speciesResponse.body);
+
       final evolutionChainUrl = speciesData['evolution_chain']['url'] as String;
 
-      final evolutionsResponse = await _client
-          .get(Uri.parse(evolutionChainUrl))
-          .timeout(AppConstants.apiTimeout);
+      final evolutionsResponse = await http.get(Uri.parse(evolutionChainUrl));
 
       if (evolutionsResponse.statusCode != 200) {
         return [];
       }
 
       final evolutionsData = json.decode(evolutionsResponse.body);
+
       final chain = evolutionsData['chain'];
 
       List<EvolutionStage> stages = [];
+
       _parseEvolutionChain(chain, stages);
 
       return stages;
@@ -263,12 +211,12 @@ class ApiService {
     }
   }
 
-  /// Parse evolution chain recursively
   void _parseEvolutionChain(
     Map<String, dynamic> chain,
     List<EvolutionStage> stages,
   ) {
     final species = chain['species']['name'] as String;
+
     final speciesUrl = chain['species']['url'] as String;
 
     final uri = Uri.parse(speciesUrl);
@@ -285,7 +233,8 @@ class ApiService {
       trigger = details['trigger']['name'];
     }
 
-    final imageUrl = '${AppConstants.officialArtworkBaseUrl}/$id.png';
+    final imageUrl =
+        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png';
 
     stages.add(
       EvolutionStage(
@@ -298,6 +247,7 @@ class ApiService {
     );
 
     final evolvesTo = chain['evolves_to'] as List;
+
     for (var evolution in evolvesTo) {
       _parseEvolutionChain(evolution, stages);
     }

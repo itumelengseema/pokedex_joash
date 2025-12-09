@@ -8,7 +8,7 @@ import '../services/auth.dart';
 import '../services/local_storage.dart';
 
 class PokemonController extends ChangeNotifier {
-  late final ApiService _apiService;
+  final ApiService _apiService = ApiService();
 
   final AuthService _authService = AuthService();
 

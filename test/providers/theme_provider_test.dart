@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-// Tests disabled during MVC refactoring
-// TODO: Update tests after refactoring is complete
 import 'package:pokedex_joash/providers/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
