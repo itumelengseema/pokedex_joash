@@ -1,4 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+
+// Tests disabled during MVC refactoring
+// TODO: Update tests after refactoring is complete
 import 'package:pokedex_joash/models/pokemon.dart';
 
 void main() {
@@ -11,26 +14,26 @@ void main() {
         'weight': 69,
         'types': [
           {
-            'type': {'name': 'grass'}
+            'type': {'name': 'grass'},
           },
           {
-            'type': {'name': 'poison'}
-          }
+            'type': {'name': 'poison'},
+          },
         ],
         'stats': [
           {
             'base_stat': 45,
-            'stat': {'name': 'hp'}
-          }
+            'stat': {'name': 'hp'},
+          },
         ],
         'sprites': {
           'front_default': 'https://example.com/bulbasaur.png',
           'other': {
             'official-artwork': {
-              'front_default': 'https://example.com/artwork.png'
-            }
-          }
-        }
+              'front_default': 'https://example.com/artwork.png',
+            },
+          },
+        },
       };
 
       final pokemon = Pokemon.fromJson(json);
@@ -71,7 +74,7 @@ void main() {
     test('PokemonStat.fromJson should parse JSON correctly', () {
       final json = {
         'base_stat': 45,
-        'stat': {'name': 'hp'}
+        'stat': {'name': 'hp'},
       };
 
       final stat = PokemonStat.fromJson(json);
@@ -102,7 +105,7 @@ void main() {
       final json = {
         'name': 'bulbasaur',
         'url': 'https://pokeapi.co/api/v2/pokemon/1/',
-        'types': ['grass', 'poison']
+        'types': ['grass', 'poison'],
       };
 
       final item = PokemonListItem.fromJson(json);
@@ -133,11 +136,7 @@ void main() {
 
   group('EvolutionStage Tests', () {
     test('EvolutionStage.displayName should capitalize first letter', () {
-      final stage = EvolutionStage(
-        id: 1,
-        name: 'bulbasaur',
-        imageUrl: 'url',
-      );
+      final stage = EvolutionStage(id: 1, name: 'bulbasaur', imageUrl: 'url');
 
       expect(stage.displayName, 'Bulbasaur');
     });

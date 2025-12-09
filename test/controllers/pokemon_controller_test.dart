@@ -1,4 +1,7 @@
- import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+// Tests disabled during MVC refactoring
+// TODO: Update tests after refactoring is complete
 import 'package:pokedex_joash/models/pokemon.dart';
 import 'package:pokedex_joash/models/user.dart';
 
@@ -23,12 +26,23 @@ void main() {
     test('Filter favorites should work correctly', () {
       final user = User(uid: 'test-uid', favoritePokemonIds: [1, 25]);
       final allPokemon = [
-        PokemonListItem(name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/'),
-        PokemonListItem(name: 'ivysaur', url: 'https://pokeapi.co/api/v2/pokemon/2/'),
-        PokemonListItem(name: 'pikachu', url: 'https://pokeapi.co/api/v2/pokemon/25/'),
+        PokemonListItem(
+          name: 'bulbasaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/1/',
+        ),
+        PokemonListItem(
+          name: 'ivysaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/2/',
+        ),
+        PokemonListItem(
+          name: 'pikachu',
+          url: 'https://pokeapi.co/api/v2/pokemon/25/',
+        ),
       ];
 
-      final favorites = allPokemon.where((p) => user.favoritePokemonIds.contains(p.id)).toList();
+      final favorites = allPokemon
+          .where((p) => user.favoritePokemonIds.contains(p.id))
+          .toList();
 
       expect(favorites.length, 2);
       expect(favorites[0].name, 'bulbasaur');
@@ -37,13 +51,24 @@ void main() {
 
     test('Search functionality logic', () {
       final allPokemon = [
-        PokemonListItem(name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/'),
-        PokemonListItem(name: 'ivysaur', url: 'https://pokeapi.co/api/v2/pokemon/2/'),
-        PokemonListItem(name: 'pikachu', url: 'https://pokeapi.co/api/v2/pokemon/25/'),
+        PokemonListItem(
+          name: 'bulbasaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/1/',
+        ),
+        PokemonListItem(
+          name: 'ivysaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/2/',
+        ),
+        PokemonListItem(
+          name: 'pikachu',
+          url: 'https://pokeapi.co/api/v2/pokemon/25/',
+        ),
       ];
 
       final query = 'pika';
-      final filtered = allPokemon.where((p) => p.name.toLowerCase().contains(query.toLowerCase())).toList();
+      final filtered = allPokemon
+          .where((p) => p.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
 
       expect(filtered.length, 1);
       expect(filtered.first.name, 'pikachu');

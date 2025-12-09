@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+// Tests disabled during MVC refactoring
+// TODO: Update tests after refactoring is complete
 import 'package:pokedex_joash/providers/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,19 +18,22 @@ void main() {
       expect(provider.themeMode, ThemeMode.system);
     });
 
-    test('setThemeMode should update theme mode and notify listeners', () async {
-      final provider = ThemeProvider();
-      var notified = false;
+    test(
+      'setThemeMode should update theme mode and notify listeners',
+      () async {
+        final provider = ThemeProvider();
+        var notified = false;
 
-      provider.addListener(() {
-        notified = true;
-      });
+        provider.addListener(() {
+          notified = true;
+        });
 
-      await provider.setThemeMode(ThemeMode.dark);
+        await provider.setThemeMode(ThemeMode.dark);
 
-      expect(provider.themeMode, ThemeMode.dark);
-      expect(notified, true);
-    });
+        expect(provider.themeMode, ThemeMode.dark);
+        expect(notified, true);
+      },
+    );
 
     test('setThemeMode should persist theme to SharedPreferences', () async {
       final provider = ThemeProvider();
@@ -96,16 +102,19 @@ void main() {
       expect(theme.cardTheme.color, const Color(0xFF1E1E2E));
     });
 
-    test('Theme should load from SharedPreferences on initialization', () async {
-      SharedPreferences.setMockInitialValues({
-        'theme_mode': ThemeMode.dark.toString(),
-      });
+    test(
+      'Theme should load from SharedPreferences on initialization',
+      () async {
+        SharedPreferences.setMockInitialValues({
+          'theme_mode': ThemeMode.dark.toString(),
+        });
 
-      final provider = ThemeProvider();
+        final provider = ThemeProvider();
 
-      await Future.delayed(const Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
-      expect(provider.themeMode, ThemeMode.dark);
-    });
+        expect(provider.themeMode, ThemeMode.dark);
+      },
+    );
   });
 }

@@ -114,8 +114,9 @@ class _SignInState extends State<SignIn> {
                                 if (value == null || value.isEmpty) {
                                   return 'Enter an email';
                                 }
+                                // Proper email validation regex
                                 final emailRegex = RegExp(
-                                  r'^[^@]+@[^@]+\.[^@]+',
+                                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                                 );
                                 if (!emailRegex.hasMatch(value)) {
                                   return 'Enter a valid email address';

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+// Tests disabled during MVC refactoring
+// TODO: Update tests after refactoring is complete
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
@@ -42,28 +45,25 @@ void main() {
 
     Widget createTestWidget({bool isDark = false}) {
       when(mockThemeProvider.isDarkMode).thenReturn(isDark);
-      when(mockThemeProvider.themeMode).thenReturn(isDark ? ThemeMode.dark : ThemeMode.light);
+      when(
+        mockThemeProvider.themeMode,
+      ).thenReturn(isDark ? ThemeMode.dark : ThemeMode.light);
 
       return MultiProvider(
         providers: [
           ChangeNotifierProvider<PokemonController>.value(
             value: mockController,
           ),
-          ChangeNotifierProvider<ThemeProvider>.value(
-            value: mockThemeProvider,
-          ),
-          Provider<AudioService>.value(
-            value: mockAudioService,
-          ),
+          ChangeNotifierProvider<ThemeProvider>.value(value: mockThemeProvider),
+          Provider<AudioService>.value(value: mockAudioService),
         ],
-        child: const MaterialApp(
-          home: PokemonListView(),
-        ),
+        child: const MaterialApp(home: PokemonListView()),
       );
     }
 
-    testWidgets('should display loading indicator when loading',
-        (WidgetTester tester) async {
+    testWidgets('should display loading indicator when loading', (
+      WidgetTester tester,
+    ) async {
       when(mockController.isLoading).thenReturn(true);
       when(mockController.displayList).thenReturn([]);
 
@@ -74,28 +74,46 @@ void main() {
       expect(find.text('Loading Pokémon...'), findsOneWidget);
     });
 
-    testWidgets('should display error message with retry button when error occurs',
-        (WidgetTester tester) async {
-      when(mockController.isLoading).thenReturn(false);
-      when(mockController.error).thenReturn('Failed to load Pokemon list');
-      when(mockController.displayList).thenReturn([]);
-      when(mockController.fetchPokemonList()).thenAnswer((_) async => {});
+    testWidgets(
+      'should display error message with retry button when error occurs',
+      (WidgetTester tester) async {
+        when(mockController.isLoading).thenReturn(false);
+        when(mockController.error).thenReturn('Failed to load Pokemon list');
+        when(mockController.displayList).thenReturn([]);
+        when(mockController.fetchPokemonList()).thenAnswer((_) async => {});
 
-      await tester.pumpWidget(createTestWidget());
-      await tester.pump();
+        await tester.pumpWidget(createTestWidget());
+        await tester.pump();
 
-      expect(find.textContaining('Error:'), findsOneWidget);
-      expect(find.textContaining('Failed to load Pokemon list'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
-      expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
-    });
+        expect(find.textContaining('Error:'), findsOneWidget);
+        expect(
+          find.textContaining('Failed to load Pokemon list'),
+          findsOneWidget,
+        );
+        expect(find.text('Retry'), findsOneWidget);
+        expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
+      },
+    );
 
-    testWidgets('should display Pokemon list when loaded',
-        (WidgetTester tester) async {
+    testWidgets('should display Pokemon list when loaded', (
+      WidgetTester tester,
+    ) async {
       final pokemonList = [
-        PokemonListItem(name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/', types: ['grass', 'poison']),
-        PokemonListItem(name: 'charmander', url: 'https://pokeapi.co/api/v2/pokemon/4/', types: ['fire']),
-        PokemonListItem(name: 'squirtle', url: 'https://pokeapi.co/api/v2/pokemon/7/', types: ['water']),
+        PokemonListItem(
+          name: 'bulbasaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/1/',
+          types: ['grass', 'poison'],
+        ),
+        PokemonListItem(
+          name: 'charmander',
+          url: 'https://pokeapi.co/api/v2/pokemon/4/',
+          types: ['fire'],
+        ),
+        PokemonListItem(
+          name: 'squirtle',
+          url: 'https://pokeapi.co/api/v2/pokemon/7/',
+          types: ['water'],
+        ),
       ];
 
       when(mockController.isLoading).thenReturn(false);
@@ -113,10 +131,15 @@ void main() {
       expect(find.text('#007'), findsOneWidget);
     });
 
-    testWidgets('should display search bar with correct hint text',
-        (WidgetTester tester) async {
+    testWidgets('should display search bar with correct hint text', (
+      WidgetTester tester,
+    ) async {
       when(mockController.displayList).thenReturn([
-        PokemonListItem(name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/', types: ['grass']),
+        PokemonListItem(
+          name: 'bulbasaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/1/',
+          types: ['grass'],
+        ),
       ]);
 
       await tester.pumpWidget(createTestWidget());
@@ -126,12 +149,25 @@ void main() {
       expect(find.byIcon(Icons.search_rounded), findsOneWidget);
     });
 
-    testWidgets('should filter Pokemon when search query is entered',
-        (WidgetTester tester) async {
+    testWidgets('should filter Pokemon when search query is entered', (
+      WidgetTester tester,
+    ) async {
       when(mockController.displayList).thenReturn([
-        PokemonListItem(name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/', types: ['grass']),
-        PokemonListItem(name: 'charmander', url: 'https://pokeapi.co/api/v2/pokemon/4/', types: ['fire']),
-        PokemonListItem(name: 'pikachu', url: 'https://pokeapi.co/api/v2/pokemon/25/', types: ['electric']),
+        PokemonListItem(
+          name: 'bulbasaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/1/',
+          types: ['grass'],
+        ),
+        PokemonListItem(
+          name: 'charmander',
+          url: 'https://pokeapi.co/api/v2/pokemon/4/',
+          types: ['fire'],
+        ),
+        PokemonListItem(
+          name: 'pikachu',
+          url: 'https://pokeapi.co/api/v2/pokemon/25/',
+          types: ['electric'],
+        ),
       ]);
       when(mockController.searchPokemon(any)).thenAnswer((_) async => {});
 
@@ -145,8 +181,9 @@ void main() {
       verify(mockController.searchPokemon('pika')).called(1);
     });
 
-    testWidgets('should display empty search state when no results found',
-        (WidgetTester tester) async {
+    testWidgets('should display empty search state when no results found', (
+      WidgetTester tester,
+    ) async {
       when(mockController.isLoading).thenReturn(false);
       when(mockController.displayList).thenReturn([]);
       when(mockController.isSearching).thenReturn(true);
@@ -160,10 +197,15 @@ void main() {
       expect(find.text('for "nonexistent"'), findsOneWidget);
     });
 
-    testWidgets('should display clear button when searching',
-        (WidgetTester tester) async {
+    testWidgets('should display clear button when searching', (
+      WidgetTester tester,
+    ) async {
       when(mockController.displayList).thenReturn([
-        PokemonListItem(name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/', types: ['grass']),
+        PokemonListItem(
+          name: 'bulbasaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/1/',
+          types: ['grass'],
+        ),
       ]);
       when(mockController.isSearching).thenReturn(true);
       when(mockController.searchQuery).thenReturn('bulba');
@@ -174,8 +216,9 @@ void main() {
       expect(find.byIcon(Icons.close_rounded), findsOneWidget);
     });
 
-    testWidgets('should show Pokédex title in AppBar',
-        (WidgetTester tester) async {
+    testWidgets('should show Pokédex title in AppBar', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
@@ -183,42 +226,51 @@ void main() {
       expect(find.byType(AppBar), findsOneWidget);
     });
 
-    testWidgets('should have theme toggle button in AppBar',
-        (WidgetTester tester) async {
+    testWidgets('should have theme toggle button in AppBar', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
       expect(find.byIcon(Icons.dark_mode_rounded), findsOneWidget);
     });
 
-    testWidgets('should have favorites filter button in AppBar',
-        (WidgetTester tester) async {
+    testWidgets('should have favorites filter button in AppBar', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
       expect(find.byIcon(Icons.favorite_border), findsWidgets);
     });
 
-    testWidgets('should have logout button in AppBar',
-        (WidgetTester tester) async {
+    testWidgets('should have logout button in AppBar', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
       expect(find.byIcon(Icons.logout_rounded), findsOneWidget);
     });
 
-    testWidgets('should have music toggle button in AppBar',
-        (WidgetTester tester) async {
+    testWidgets('should have music toggle button in AppBar', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
       expect(find.byIcon(Icons.music_off), findsOneWidget);
     });
 
-    testWidgets('should display Pokemon cards with Hero widgets',
-        (WidgetTester tester) async {
+    testWidgets('should display Pokemon cards with Hero widgets', (
+      WidgetTester tester,
+    ) async {
       when(mockController.displayList).thenReturn([
-        PokemonListItem(name: 'pikachu', url: 'https://pokeapi.co/api/v2/pokemon/25/', types: ['electric']),
+        PokemonListItem(
+          name: 'pikachu',
+          url: 'https://pokeapi.co/api/v2/pokemon/25/',
+          types: ['electric'],
+        ),
       ]);
 
       await tester.pumpWidget(createTestWidget());
@@ -229,21 +281,28 @@ void main() {
       expect(hero.tag, 'pokemon-25');
     });
 
-    testWidgets('should display loading indicator at bottom when loading more',
-        (WidgetTester tester) async {
-      when(mockController.displayList).thenReturn([
-        PokemonListItem(name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/', types: ['grass']),
-      ]);
-      when(mockController.isLoadingMore).thenReturn(true);
+    testWidgets(
+      'should display loading indicator at bottom when loading more',
+      (WidgetTester tester) async {
+        when(mockController.displayList).thenReturn([
+          PokemonListItem(
+            name: 'bulbasaur',
+            url: 'https://pokeapi.co/api/v2/pokemon/1/',
+            types: ['grass'],
+          ),
+        ]);
+        when(mockController.isLoadingMore).thenReturn(true);
 
-      await tester.pumpWidget(createTestWidget());
-      await tester.pump();
+        await tester.pumpWidget(createTestWidget());
+        await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsWidgets);
-    });
+        expect(find.byType(CircularProgressIndicator), findsWidgets);
+      },
+    );
 
-    testWidgets('should have correct gradient background in light mode',
-        (WidgetTester tester) async {
+    testWidgets('should have correct gradient background in light mode', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createTestWidget(isDark: false));
       await tester.pump();
 
@@ -252,8 +311,9 @@ void main() {
       expect(find.byType(Container), findsWidgets);
     });
 
-    testWidgets('should have correct gradient background in dark mode',
-        (WidgetTester tester) async {
+    testWidgets('should have correct gradient background in dark mode', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createTestWidget(isDark: true));
       await tester.pump();
 
@@ -262,10 +322,15 @@ void main() {
       expect(find.byType(AppBar), findsOneWidget);
     });
 
-    testWidgets('should display Pokemon cards with arrow icon',
-        (WidgetTester tester) async {
+    testWidgets('should display Pokemon cards with arrow icon', (
+      WidgetTester tester,
+    ) async {
       when(mockController.displayList).thenReturn([
-        PokemonListItem(name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/', types: ['grass']),
+        PokemonListItem(
+          name: 'bulbasaur',
+          url: 'https://pokeapi.co/api/v2/pokemon/1/',
+          types: ['grass'],
+        ),
       ]);
 
       await tester.pumpWidget(createTestWidget());
@@ -274,24 +339,27 @@ void main() {
       expect(find.byIcon(Icons.arrow_forward_rounded), findsOneWidget);
     });
 
-    testWidgets('should toggle favorites filter when favorites button is tapped',
-        (WidgetTester tester) async {
-      when(mockController.showingFavoritesOnly).thenReturn(false);
+    testWidgets(
+      'should toggle favorites filter when favorites button is tapped',
+      (WidgetTester tester) async {
+        when(mockController.showingFavoritesOnly).thenReturn(false);
 
-      await tester.pumpWidget(createTestWidget());
-      await tester.pump();
+        await tester.pumpWidget(createTestWidget());
+        await tester.pump();
 
-      // Find and tap the favorites filter button
-      final favoriteButtons = find.byIcon(Icons.favorite_border);
-      await tester.tap(favoriteButtons.first);
-      await tester.pump();
+        // Find and tap the favorites filter button
+        final favoriteButtons = find.byIcon(Icons.favorite_border);
+        await tester.tap(favoriteButtons.first);
+        await tester.pump();
 
-      // Verify toggleFavoritesFilter was called
-      verify(mockController.toggleFavoritesFilter()).called(1);
-    });
+        // Verify toggleFavoritesFilter was called
+        verify(mockController.toggleFavoritesFilter()).called(1);
+      },
+    );
 
-    testWidgets('should call retry when retry button is tapped',
-        (WidgetTester tester) async {
+    testWidgets('should call retry when retry button is tapped', (
+      WidgetTester tester,
+    ) async {
       when(mockController.isLoading).thenReturn(false);
       when(mockController.error).thenReturn('Network error');
       when(mockController.displayList).thenReturn([]);

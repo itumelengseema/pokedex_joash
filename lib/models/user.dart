@@ -30,6 +30,6 @@ class User {
     return User(
       uid: uid,
       favoritePokemonIds: List<int>.from(map['favoritePokemonIds'] ?? []),
-    );
+  );
   }
 }
