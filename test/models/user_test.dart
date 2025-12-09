@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-// Tests disabled during MVC refactoring
-// TODO: Update tests after refactoring is complete
 import 'package:pokedex_joash/models/user.dart';
 
 void main() {
