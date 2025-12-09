@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/pokemon.dart';
-import '../core/errors/exceptions.dart';
-import '../core/constants/app_constants.dart';
 
 export '../models/pokemon.dart' show EvolutionStage;
 

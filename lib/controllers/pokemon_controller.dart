@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:http/http.dart' as http;
 import '../models/pokemon.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
@@ -8,7 +7,7 @@ import '../services/auth.dart';
 import '../services/local_storage.dart';
 
 class PokemonController extends ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  ApiService _apiService = ApiService();
 
   final AuthService _authService = AuthService();
 
@@ -71,7 +70,7 @@ class PokemonController extends ChangeNotifier {
   bool get isOffline => _isOffline;
 
   PokemonController() {
-    _apiService = ApiService(http.Client());
+    _apiService = ApiService();
   }
 
   List<PokemonListItem> get displayList {
