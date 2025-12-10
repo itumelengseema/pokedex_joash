@@ -7,7 +7,7 @@ import '../services/auth.dart';
 import '../services/local_storage.dart';
 
 class PokemonController extends ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  ApiService _apiService = ApiService();
 
   final AuthService _authService = AuthService();
 
@@ -69,6 +69,10 @@ class PokemonController extends ChangeNotifier {
 
   bool get isOffline => _isOffline;
 
+  PokemonController() {
+    _apiService = ApiService();
+  }
+
   List<PokemonListItem> get displayList {
     if (_isSearching) return _searchResults;
     if (_showingFavoritesOnly && _currentUser != null) {
@@ -78,8 +82,11 @@ class PokemonController extends ChangeNotifier {
           .toList();
 
       final allFavorites = <int, PokemonListItem>{};
+      // FIX: Only include cached Pokemon that are in the current user's favorites
       for (var pokemon in _favoritedPokemonCache) {
-        allFavorites[pokemon.id] = pokemon;
+        if (favoritedIds.contains(pokemon.id)) {
+          allFavorites[pokemon.id] = pokemon;
+        }
       }
       for (var pokemon in loadedFavorites) {
         allFavorites[pokemon.id] = pokemon;
@@ -91,6 +98,10 @@ class PokemonController extends ChangeNotifier {
   }
 
   void setUser(User? user) {
+    // Clear favorites cache when user changes to prevent data carryover
+    if (_currentUser?.uid != user?.uid) {
+      _favoritedPokemonCache = [];
+    }
     _currentUser = user;
     notifyListeners();
   }

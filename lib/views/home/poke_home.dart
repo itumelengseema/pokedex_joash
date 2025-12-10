@@ -5,6 +5,7 @@ import 'package:pokedex_joash/models/pokemon.dart';
 import 'package:pokedex_joash/providers/theme_provider.dart';
 import 'package:pokedex_joash/services/pokemon_sound.dart';
 import 'package:pokedex_joash/services/auth.dart';
+import 'package:pokedex_joash/services/local_storage.dart';
 import 'package:pokedex_joash/widgets/pokemon_search_bar.dart';
 import 'package:pokedex_joash/widgets/pokemon_list_card.dart';
 import 'poke_details.dart';
@@ -217,6 +218,10 @@ class _PokemonListViewState extends State<PokemonListView> {
               tooltip: 'Logout',
               onPressed: () async {
                 final AuthService auth = AuthService();
+                final LocalStorageService storage = LocalStorageService();
+
+                // Clear cached favorites when signing out
+                await storage.clearFavoritedPokemon();
                 await auth.signOut();
               },
             ),
@@ -364,6 +369,41 @@ class _PokemonListViewState extends State<PokemonListView> {
                     ? const Color(0xFFFF6B6B)
                     : const Color(0xFFE63946),
                 foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (controller.showingFavoritesOnly &&
+        displayList.isEmpty &&
+        !controller.isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.favorite_border_rounded,
+              size: 80,
+              color: isDark ? Colors.grey[700] : Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No Favorites Found',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.grey[300] : Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tap the heart icon on a Pokémon to add it to your favorites',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: isDark ? Colors.grey[500] : Colors.grey[600],
               ),
             ),
           ],

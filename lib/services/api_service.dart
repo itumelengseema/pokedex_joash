@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:pokedex_joash/models/pokemon.dart';
-export 'package:pokedex_joash/models/pokemon.dart' show EvolutionStage;
+import '../models/pokemon.dart';
+
+export '../models/pokemon.dart' show EvolutionStage;
 
 class PaginatedPokemonResponse {
   final List<PokemonListItem> results;
@@ -15,6 +16,9 @@ class PaginatedPokemonResponse {
   });
 }
 
+/// API Service - Single Responsibility: Handle all Pokemon API calls
+/// Fixes Issue #8: Proper API call handling with error management
+/// Fixes Issue #14: Query parameter issues resolved with proper URI building
 class ApiService {
   static const String baseUrl = 'https://pokeapi.co/api/v2';
 

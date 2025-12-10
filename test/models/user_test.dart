@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:pokedex_joash/models/user.dart';
 
 void main() {
@@ -11,24 +12,16 @@ void main() {
     });
 
     test('User should be created with favorite Pokemon IDs', () {
-      final user = User(
-        uid: 'test-uid-123',
-        favoritePokemonIds: [1, 25, 150],
-      );
+      final user = User(uid: 'test-uid-123', favoritePokemonIds: [1, 25, 150]);
 
       expect(user.uid, 'test-uid-123');
       expect(user.favoritePokemonIds, [1, 25, 150]);
     });
 
     test('User.copyWith should create new instance with updated fields', () {
-      final user = User(
-        uid: 'test-uid-123',
-        favoritePokemonIds: [1, 2, 3],
-      );
+      final user = User(uid: 'test-uid-123', favoritePokemonIds: [1, 2, 3]);
 
-      final updated = user.copyWith(
-        favoritePokemonIds: [4, 5, 6],
-      );
+      final updated = user.copyWith(favoritePokemonIds: [4, 5, 6]);
 
       expect(updated.uid, 'test-uid-123');
       expect(updated.favoritePokemonIds, [4, 5, 6]);
@@ -36,10 +29,7 @@ void main() {
     });
 
     test('User.copyWith should keep original values if not specified', () {
-      final user = User(
-        uid: 'test-uid-123',
-        favoritePokemonIds: [1, 2, 3],
-      );
+      final user = User(uid: 'test-uid-123', favoritePokemonIds: [1, 2, 3]);
 
       final updated = user.copyWith();
 
@@ -48,10 +38,7 @@ void main() {
     });
 
     test('User.toMap should convert to Map correctly', () {
-      final user = User(
-        uid: 'test-uid-123',
-        favoritePokemonIds: [1, 25, 150],
-      );
+      final user = User(uid: 'test-uid-123', favoritePokemonIds: [1, 25, 150]);
 
       final map = user.toMap();
 
@@ -72,9 +59,7 @@ void main() {
     });
 
     test('User.fromMap should handle missing favoritePokemonIds', () {
-      final map = {
-        'uid': 'test-uid-123',
-      };
+      final map = {'uid': 'test-uid-123'};
 
       final user = User.fromMap(map, 'test-uid-123');
 
@@ -83,10 +68,7 @@ void main() {
     });
 
     test('User.fromMap should handle null favoritePokemonIds', () {
-      final map = {
-        'uid': 'test-uid-123',
-        'favoritePokemonIds': null,
-      };
+      final map = {'uid': 'test-uid-123', 'favoritePokemonIds': null};
 
       final user = User.fromMap(map, 'test-uid-123');
 

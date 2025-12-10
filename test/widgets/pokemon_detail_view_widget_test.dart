@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+// Tests disabled during MVC refactoring
+// TODO: Update tests after refactoring is complete
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
@@ -33,25 +36,24 @@ void main() {
 
     Widget createTestWidget({bool isDark = false}) {
       when(mockThemeProvider.isDarkMode).thenReturn(isDark);
-      when(mockThemeProvider.themeMode).thenReturn(isDark ? ThemeMode.dark : ThemeMode.light);
+      when(
+        mockThemeProvider.themeMode,
+      ).thenReturn(isDark ? ThemeMode.dark : ThemeMode.light);
 
       return MultiProvider(
         providers: [
           ChangeNotifierProvider<PokemonController>.value(
             value: mockController,
           ),
-          ChangeNotifierProvider<ThemeProvider>.value(
-            value: mockThemeProvider,
-          ),
+          ChangeNotifierProvider<ThemeProvider>.value(value: mockThemeProvider),
         ],
-        child: const MaterialApp(
-          home: PokemonDetailView(pokemonId: 25),
-        ),
+        child: const MaterialApp(home: PokemonDetailView(pokemonId: 25)),
       );
     }
 
-    testWidgets('should display loading indicator when loading',
-        (WidgetTester tester) async {
+    testWidgets('should display loading indicator when loading', (
+      WidgetTester tester,
+    ) async {
       when(mockController.isLoading).thenReturn(true);
       when(mockController.selectedPokemon).thenReturn(null);
 
@@ -62,8 +64,9 @@ void main() {
       expect(find.text('Loading...'), findsOneWidget);
     });
 
-    testWidgets('should display error message when error occurs',
-        (WidgetTester tester) async {
+    testWidgets('should display error message when error occurs', (
+      WidgetTester tester,
+    ) async {
       when(mockController.isLoading).thenReturn(false);
       when(mockController.error).thenReturn('Failed to load Pokemon');
       when(mockController.selectedPokemon).thenReturn(null);
@@ -75,8 +78,9 @@ void main() {
       expect(find.textContaining('Failed to load Pokemon'), findsOneWidget);
     });
 
-    testWidgets('should display Pokemon details when loaded',
-        (WidgetTester tester) async {
+    testWidgets('should display Pokemon details when loaded', (
+      WidgetTester tester,
+    ) async {
       final mockPokemon = Pokemon(
         id: 25,
         name: 'pikachu',
@@ -94,7 +98,8 @@ void main() {
           PokemonStat(name: 'special-defense', baseStat: 50),
           PokemonStat(name: 'speed', baseStat: 90),
         ],
-        description: 'When several of these Pokémon gather, their electricity could build and cause lightning storms.',
+        description:
+            'When several of these Pokémon gather, their electricity could build and cause lightning storms.',
         evolutionChain: [],
       );
 
@@ -114,8 +119,9 @@ void main() {
       expect(find.text('6.0 kg'), findsOneWidget);
     });
 
-    testWidgets('should display Pokemon stats correctly',
-        (WidgetTester tester) async {
+    testWidgets('should display Pokemon stats correctly', (
+      WidgetTester tester,
+    ) async {
       final mockPokemon = Pokemon(
         id: 25,
         name: 'pikachu',
@@ -150,8 +156,9 @@ void main() {
       expect(find.text('40'), findsOneWidget);
     });
 
-    testWidgets('should display Pokemon abilities',
-        (WidgetTester tester) async {
+    testWidgets('should display Pokemon abilities', (
+      WidgetTester tester,
+    ) async {
       final mockPokemon = Pokemon(
         id: 25,
         name: 'pikachu',
@@ -178,8 +185,9 @@ void main() {
       expect(find.text('Lightning Rod'), findsOneWidget);
     });
 
-    testWidgets('should toggle favorite when favorite button is tapped',
-        (WidgetTester tester) async {
+    testWidgets('should toggle favorite when favorite button is tapped', (
+      WidgetTester tester,
+    ) async {
       final mockPokemon = Pokemon(
         id: 25,
         name: 'pikachu',
@@ -203,7 +211,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
 
       // Find and tap the favorite button
-      final favoriteButton = find.widgetWithIcon(IconButton, Icons.favorite_border);
+      final favoriteButton = find.widgetWithIcon(
+        IconButton,
+        Icons.favorite_border,
+      );
       expect(favoriteButton, findsOneWidget);
 
       await tester.tap(favoriteButton);
@@ -213,8 +224,9 @@ void main() {
       verify(mockController.toggleFavorite(25)).called(1);
     });
 
-    testWidgets('should display evolution chain when available',
-        (WidgetTester tester) async {
+    testWidgets('should display evolution chain when available', (
+      WidgetTester tester,
+    ) async {
       final mockPokemon = Pokemon(
         id: 25,
         name: 'pikachu',
@@ -255,12 +267,16 @@ void main() {
 
       expect(find.text('Evolution Chain'), findsOneWidget);
       expect(find.text('Pichu'), findsOneWidget);
-      expect(find.text('Pikachu'), findsAtLeastNWidgets(2)); // One in header, one in evolution chain
+      expect(
+        find.text('Pikachu'),
+        findsAtLeastNWidgets(2),
+      ); // One in header, one in evolution chain
       expect(find.text('Raichu'), findsOneWidget);
     });
 
-    testWidgets('should use correct theme colors in dark mode',
-        (WidgetTester tester) async {
+    testWidgets('should use correct theme colors in dark mode', (
+      WidgetTester tester,
+    ) async {
       final mockPokemon = Pokemon(
         id: 25,
         name: 'pikachu',
@@ -290,8 +306,9 @@ void main() {
       verify(mockThemeProvider.isDarkMode).called(greaterThan(0));
     });
 
-    testWidgets('should have Hero animation with correct tag',
-        (WidgetTester tester) async {
+    testWidgets('should have Hero animation with correct tag', (
+      WidgetTester tester,
+    ) async {
       final mockPokemon = Pokemon(
         id: 25,
         name: 'pikachu',
@@ -320,8 +337,9 @@ void main() {
       expect(hero.tag, 'pokemon-25');
     });
 
-    testWidgets('should display description when available',
-        (WidgetTester tester) async {
+    testWidgets('should display description when available', (
+      WidgetTester tester,
+    ) async {
       final mockPokemon = Pokemon(
         id: 25,
         name: 'pikachu',
@@ -331,7 +349,8 @@ void main() {
         weight: 60,
         abilities: ['static'],
         stats: [PokemonStat(name: 'hp', baseStat: 35)],
-        description: 'This Pokemon has electricity-storing pouches on its cheeks.',
+        description:
+            'This Pokemon has electricity-storing pouches on its cheeks.',
         evolutionChain: [],
       );
 
@@ -344,7 +363,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
 
       expect(
-        find.text('This Pokemon has electricity-storing pouches on its cheeks.'),
+        find.text(
+          'This Pokemon has electricity-storing pouches on its cheeks.',
+        ),
         findsOneWidget,
       );
     });
