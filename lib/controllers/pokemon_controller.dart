@@ -82,8 +82,11 @@ class PokemonController extends ChangeNotifier {
           .toList();
 
       final allFavorites = <int, PokemonListItem>{};
+      // FIX: Only include cached Pokemon that are in the current user's favorites
       for (var pokemon in _favoritedPokemonCache) {
-        allFavorites[pokemon.id] = pokemon;
+        if (favoritedIds.contains(pokemon.id)) {
+          allFavorites[pokemon.id] = pokemon;
+        }
       }
       for (var pokemon in loadedFavorites) {
         allFavorites[pokemon.id] = pokemon;
@@ -95,6 +98,10 @@ class PokemonController extends ChangeNotifier {
   }
 
   void setUser(User? user) {
+    // Clear favorites cache when user changes to prevent data carryover
+    if (_currentUser?.uid != user?.uid) {
+      _favoritedPokemonCache = [];
+    }
     _currentUser = user;
     notifyListeners();
   }
