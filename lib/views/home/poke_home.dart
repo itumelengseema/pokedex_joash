@@ -219,7 +219,7 @@ class _PokemonListViewState extends State<PokemonListView> {
               onPressed: () async {
                 final AuthService auth = AuthService();
                 final LocalStorageService storage = LocalStorageService();
-                
+
                 // Clear cached favorites when signing out
                 await storage.clearFavoritedPokemon();
                 await auth.signOut();
